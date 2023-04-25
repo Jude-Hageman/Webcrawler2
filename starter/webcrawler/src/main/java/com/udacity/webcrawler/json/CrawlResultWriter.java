@@ -1,6 +1,11 @@
 package com.udacity.webcrawler.json;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -8,7 +13,7 @@ import java.util.Objects;
  * Utility class to write a {@link CrawlResult} to file.
  */
 public final class CrawlResultWriter {
-  private final CrawlResult result;
+  private static CrawlResult result;
 
   /**
    * Creates a new {@link CrawlResultWriter} that will write the given {@link CrawlResult}.
@@ -25,10 +30,21 @@ public final class CrawlResultWriter {
    *
    * @param path the file path where the crawl result data should be written.
    */
-  public void write(Path path) {
+  public void write(Path path) throws IOException {
     // This is here to get rid of the unused variable warning.
     Objects.requireNonNull(path);
     // TODO: Fill in this method.
+    ObjectMapper objectMapper = new ObjectMapper();
+    if (Files.deleteIfExists(path)) {
+      Files.createDirectory(path);
+    }
+    try {
+      Writer writer = Files.newBufferedWriter(path);
+      write(writer);
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -36,9 +52,17 @@ public final class CrawlResultWriter {
    *
    * @param writer the destination where the crawl result data should be written.
    */
-  public void write(Writer writer) {
+  public static void write(Writer writer) {
     // This is here to get rid of the unused variable warning.
     Objects.requireNonNull(writer);
     // TODO: Fill in this method.
+    JsonGenerator.Feature Feature = com.fasterxml.jackson.core.JsonGenerator.Feature.AUTO_CLOSE_TARGET;
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+    objectMapper.disable(Feature);
+      objectMapper.writeValue(writer, result);
+  } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }
