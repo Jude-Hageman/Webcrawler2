@@ -20,6 +20,7 @@ import java.util.Objects;
 public final class WebCrawlerMain {
 
   private final CrawlerConfiguration config;
+  private Object CrawlResult;
 
   private WebCrawlerMain(CrawlerConfiguration config) {
     this.config = Objects.requireNonNull(config);
@@ -37,6 +38,19 @@ public final class WebCrawlerMain {
     CrawlResult result = crawler.crawl(config.getStartPages());
     CrawlResultWriter resultWriter = new CrawlResultWriter(result);
     // TODO: Write the crawl results to a JSON file (or System.out if the file name is empty)
+    String resultPath = config.getResultPath();
+    try {
+      new CrawlResultWriter((com.udacity.webcrawler.json.CrawlResult) CrawlResult);
+      if (resultPath.isEmpty()) {
+        Writer writer = new OutputStreamWriter(System.out);
+        resultWriter.write(writer);
+      } else {
+        Path path = Path.of(resultPath);
+        CrawlResultWriter.write((Writer) path);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     // TODO: Write the profile data to a text file (or System.out if the file name is empty)
   }
 
